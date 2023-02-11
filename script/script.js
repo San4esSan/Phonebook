@@ -2,9 +2,14 @@
 
 const data = [
     {
-        name: 'Иван',
-        surname: 'Петров',
-        phone: '+79514545454',
+        name: 'Семён',
+        surname: 'Иванов',
+        phone: '+79800252525',
+    },
+    {
+        name: 'Мария',
+        surname: 'Попова',
+        phone: '+79876543210',
     },
     {
         name: 'Игорь',
@@ -17,9 +22,9 @@ const data = [
         phone: '+79800252525',
     },
     {
-        name: 'Мария',
-        surname: 'Попова',
-        phone: '+79876543210',
+        name: 'Иван',
+        surname: 'Петров',
+        phone: '+79514545454',
     },
 ];
 
@@ -103,8 +108,8 @@ const data = [
         thead.insertAdjacentHTML('beforeend', `
             <tr>
                 <th class="delete">Удалить</th>
-                <th>Имя</th>
-                <th>Фамилия</th>
+                <th class="name">Имя</th>
+                <th class="surname">Фамилия</th>
                 <th>Телефон</th>
             </tr>
         `);
@@ -159,7 +164,6 @@ const data = [
         return {
             overlay,
             form,
-            // close,
         };
     };
 
@@ -167,7 +171,6 @@ const data = [
         const header = createHeader();
         const logo = createLogo(title);
         const main = createMain();
-        const footer = creatFooter(title);
         const buttonGroup = createButtonsGroup([
             {
               className: 'btn btn-primary mr-3 js-add',
@@ -181,6 +184,7 @@ const data = [
             },
         ]);
         const table = createTable();
+        const footer = creatFooter(title);
         const form = createForm();
 
         header.headerContainer.append(logo);
@@ -188,16 +192,20 @@ const data = [
         footer.footerContainer.append()
         app.append(header, main, footer);
         return {
+            thead: table.tHead,
             list: table.tbody,
             logo,
             btnAdd: buttonGroup.btns[0],
+            btnDel: buttonGroup.btns[1],
             formOverlay: form.overlay,
             form: form.form,
         };
+
     };
 
     const createRow = ({name: firstName, surname, phone}) => {
         const tr = document.createElement('tr');
+        tr.classList.add('contact');
 
         const td = document.createElement('td');
         const tdDel = document.createElement('td');
@@ -249,7 +257,7 @@ const data = [
         const app = document.querySelector(selectorApp);
         const phoneBook = renderPhoneBook(app, title);
 
-        const { list, logo, btnAdd, formOverlay, form } = phoneBook;
+        const { list, logo, btnAdd, formOverlay, form, btnDel, thead } = phoneBook;
 
         // функционал
         const allRow = renderContacts(list, data);
@@ -260,18 +268,38 @@ const data = [
             formOverlay.classList.add('is-visible');
         });
 
-        form.addEventListener('click', event => {
-            event.stopPropagation();
-        })
-
-        formOverlay.addEventListener('click', () => {
-            formOverlay.classList.remove('is-visible');
+        formOverlay.addEventListener('click', (e) => {
+            const target = e.target;
+            if (target === formOverlay || target.closest('.close')){
+                formOverlay.classList.remove('is-visible');
+            }
         });
 
-        document.querySelector('.close')
-            .addEventListener('click', () => {
-            formOverlay.classList.remove('is-visible');
+        btnDel.addEventListener('click', () => {
+            document.querySelectorAll('.delete').forEach(del => {
+                del.classList.toggle('is-visible');
+            })
         });
+
+        list.addEventListener('click', e => {
+            const target = e.target;
+            if (target.closest('.del-icon')) {
+                target.closest('.contact').remove();
+            }
+        });
+
+        thead.addEventListener('click', e => {
+            const target = e.target;
+            if (target.closest('.name')) {
+                let sortedRows = Array.from(list.rows).sort((rowA, rowB) => rowA.cells[1].innerHTML > rowB.cells[1].innerHTML ? 1 : -1)
+                list.append(...sortedRows);
+            }
+            if (target.closest('.surname')) {
+                let sortedRows = Array.from(list.rows).sort((rowA, rowB) => rowA.cells[2].innerHTML > rowB.cells[2].innerHTML ? 1 : -1)
+                list.append(...sortedRows);
+            }
+        });
+
     };
 
     window.phoneBookInit = init;
