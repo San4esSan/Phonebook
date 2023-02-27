@@ -1,43 +1,71 @@
 'use strict';
 
-const data = [
-    {
-        name: 'Семён',
-        surname: 'Иванов',
-        phone: '+79800252525',
-    },
-    {
-        name: 'Мария',
-        surname: 'Попова',
-        phone: '+79876543210',
-    },
-    {
-        name: 'Игорь',
-        surname: 'Семёнов',
-        phone: '+79999999999',
-    },
-    {
-        name: 'Семён',
-        surname: 'Иванов',
-        phone: '+79800252525',
-    },
-    {
-        name: 'Иван',
-        surname: 'Петров',
-        phone: '+79514545454',
-    },
+let data = [
+    // {
+    //     name: 'Семён',
+    //     surname: 'Иванов',
+    //     phone: '+79800252525',
+    // },
+    // {
+    //     name: 'Мария',
+    //     surname: 'Попова',
+    //     phone: '+79876543210',
+    // },
+    // {
+    //     name: 'Игорь',
+    //     surname: 'Семёнов',
+    //     phone: '+79999999999',
+    // },
+    // {
+    //     name: 'Семён',
+    //     surname: 'Иванов',
+    //     phone: '+79800252525',
+    // },
+    // {
+    //     name: 'Иван',
+    //     surname: 'Петров',
+    //     phone: '+79514545454',
+    // },
 ];
 
 {
+    const getStorage = (key) => {
+        const contactLocalStorage = localStorage.getItem(key);
+        if (contactLocalStorage !== null) {
+            return data = JSON.parse(contactLocalStorage);
+        }
+        return data = [];
+    };
+
+    const setStorage = (key, newContact) => {
+        let contact = getStorage('data');
+        contact.push(newContact);
+        localStorage.setItem(key, JSON.stringify(contact));
+    };
+
+    const removeStorage = (phoneNumber) => {
+        let contact = getStorage('data');
+
+        let newList = []
+        for (let i = 0; i < phoneNumber.length; i++) {
+            for (let k = 0; k < contact.length; k++)
+            if (contact[k]['phone'] === phoneNumber[i]) {
+                newList.push(contact[k])
+            }
+        }
+
+        localStorage.setItem('data', JSON.stringify(newList));
+    }
+
     const addContactData = (contact) => {
         data.push(contact);
-        console.log(data)
     };
+
     const createContainer = () => {
         const container = document.createElement('div');
         container.classList.add('container');
         return container;
-    }
+    };
 
     const createHeader = () => {
         const header = document.createElement('header');
@@ -49,7 +77,7 @@ const data = [
         header.headerContainer = headerContainer;
 
         return header;
-    }
+    };
 
     const createLogo = title => {
         const h1 = document.createElement('h1');
@@ -71,7 +99,7 @@ const data = [
         footer.footerContainer = footerContainer;
 
         return footer;
-    }
+    };
 
     const createMain = () => {
         const main = document.createElement('main');
@@ -292,6 +320,12 @@ const data = [
             const target = e.target;
             if (target.closest('.del-icon')) {
                 target.closest('.contact').remove();
+                const contact = document.querySelectorAll('.contact')
+                const phoneNumber = []
+                for (let key of Array.from(contact)) {
+                    phoneNumber.push((key.phoneLink.textContent))
+                }
+                removeStorage(phoneNumber)
             }
         });
     };
@@ -309,6 +343,7 @@ const data = [
             const newContact = Object.fromEntries(formData);
             addContactPage(newContact, list);
             addContactData(newContact);
+            setStorage('data', newContact);
             form.reset();
             closeModal();
         })
@@ -320,8 +355,15 @@ const data = [
         const { list, logo, btnAdd, formOverlay, form, btnDel, thead } = renderPhoneBook(app, title);
 
         // функционал
+
+        // setStorage('data', data);
+        getStorage('data')
+        // localStorage.setItem('data', JSON.stringify(data))
+        // data = JSON.parse(localStorage.getItem('data'));
+
         const allRow = renderContacts(list, data);
         const {closeModal} = modalControl(btnAdd, formOverlay);
+
 
         hoverRow(allRow, logo);
         deleteControl(btnDel, list);
